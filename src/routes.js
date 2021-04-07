@@ -6,15 +6,6 @@
 const express = require("express");
 const router = express.Router();
 
-function find_id(list, id){
-    for(let i = 0; i < list.length; i++){
-        if(list[i]._id == id){
-            return list[i];
-        }
-    }
-    return false;
-}
-
 router.route("/")
     .get((req, res) => {
         console.log("GET /");
@@ -27,7 +18,18 @@ router.route("/")
 // Edit below this line
 // ---------------------------------------------------
 
+function find_id(list, id){
+    for(let i = 0; i < list.length; i++){
+        if(list[i]._id == id){
+            return list[i];
+        }
+    }
+    return false;
+}
+
 const data = require("../config/data.json");
+let doc_len = data.doctors.length + 1;
+let comp_len = data.companions.length + 1;
 
 router.route("/doctors")
     .get((req, res) => {
@@ -36,7 +38,19 @@ router.route("/doctors")
     })
     .post((req, res) => {
         console.log("POST /doctors");
-        res.status(501).send();
+        if(req.body.name && req.body.seasons){
+            let doctor = {
+                _id: "d" + doc_len,
+                name: req.body.name,
+                seasons: req.body.seasons
+            };
+            doc_len++;
+            data.doctors.push(doctor);
+            res.status(201).send(doctor);
+        }
+        else{
+            res.status(500).send();
+        }
     });
 
 router.route("/doctors/:id")
@@ -52,11 +66,42 @@ router.route("/doctors/:id")
     })
     .patch((req, res) => {
         console.log(`PATCH /doctors/${req.params.id}`);
-        res.status(501).send();
+        let ind = false;
+        for(let i = 0; i < data.doctors.length; i++){
+            if(data.doctors[i]._id == req.params.id){
+                ind = i;
+                break;
+            }
+        }
+        if(ind){
+            if(req.body.name){
+                data.doctors[ind].name = req.body.name;
+            }
+            if(req.body.seasons){
+                data.doctors[ind].seasons = req.body.seasons;
+            }
+            res.status(200).send(data.doctors[ind]);
+        }
+        else{
+            res.status(404).send();
+        }
     })
     .delete((req, res) => {
         console.log(`DELETE /doctors/${req.params.id}`);
-        res.status(501).send();
+        let ind = false;
+        for(let i = 0; i < data.doctors.length; i++){
+            if(data.doctors[i]._id == req.params.id){
+                ind = i;
+                break;
+            }
+        }
+        if(ind){
+            data.doctors.splice(ind, 1);
+            res.status(200).send();
+        }
+        else{
+            res.status(404).send();
+        }
     });
 
 router.route("/doctors/:id/companions")
@@ -106,7 +151,22 @@ router.route("/companions")
     })
     .post((req, res) => {
         console.log("POST /companions");
-        res.status(501).send();
+        if(req.body.name && req.body.character && req.body.doctors && req.body.seasons && req.body.alive){
+            let companion = {
+                _id: "c" + comp_len,
+                name: req.body.name,
+                character: req.body.character,
+                doctors: req.body.doctors,
+                seasons: req.body.seasons,
+                alive: req.body.alive
+            };
+            comp_len++;
+            data.companions.push(companion);
+            res.status(201).send(companion);
+        }
+        else{
+            res.status(500).send();
+        }
     });
 
 router.route("/companions/crossover")
@@ -128,11 +188,51 @@ router.route("/companions/:id")
     })
     .patch((req, res) => {
         console.log(`PATCH /companions/${req.params.id}`);
-        res.status(501).send();
+        let ind = false;
+        for(let i = 0; i < data.companions.length; i++){
+            if(data.companions[i]._id == req.params.id){
+                ind = i;
+                break;
+            }
+        }
+        if(ind){
+            if(req.body.name){
+                data.companions[ind].name = req.body.name;
+            }
+            if(req.body.character){
+                data.companions[ind].character = req.body.character;
+            }
+            if(req.body.doctors){
+                data.companions[ind].doctors = req.body.doctors;
+            }
+            if(req.body.seasons){
+                data.companions[ind].seasons = req.body.seasons;
+            }
+            if(req.body.alive){
+                data.companions[ind].alive = req.body.alive;
+            }
+            res.status(200).send(data.companions[ind]);
+        }
+        else{
+            res.status(404).send();
+        }
     })
     .delete((req, res) => {
         console.log(`DELETE /companions/${req.params.id}`);
-        res.status(501).send();
+        let ind = false;
+        for(let i = 0; i < data.companions.length; i++){
+            if(data.companions[i]._id == req.params.id){
+                ind = i;
+                break;
+            }
+        }
+        if(ind){
+            data.companions.splice(ind, 1);
+            res.status(200).send();
+        }
+        else{
+            res.status(404).send();
+        }
     });
 
 router.route("/companions/:id/doctors")
