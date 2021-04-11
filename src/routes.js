@@ -28,8 +28,8 @@ function find_id(list, id){
 }
 
 const data = require("../config/data.json");
-let doc_len = data.doctors.length + 1;
-let comp_len = data.companions.length + 1;
+let doc_len = data.doctors.length;
+let comp_len = data.companions.length;
 
 router.route("/doctors")
     .get((req, res) => {
@@ -39,12 +39,12 @@ router.route("/doctors")
     .post((req, res) => {
         console.log("POST /doctors");
         if(req.body.name && req.body.seasons){
+            doc_len++;
             let doctor = {
                 _id: "d" + doc_len,
                 name: req.body.name,
                 seasons: req.body.seasons
             };
-            doc_len++;
             data.doctors.push(doctor);
             res.status(201).send(doctor);
         }
@@ -152,6 +152,7 @@ router.route("/companions")
     .post((req, res) => {
         console.log("POST /companions");
         if(req.body.name && req.body.character && req.body.doctors && req.body.seasons && req.body.alive){
+            comp_len++;
             let companion = {
                 _id: "c" + comp_len,
                 name: req.body.name,
@@ -160,7 +161,6 @@ router.route("/companions")
                 seasons: req.body.seasons,
                 alive: req.body.alive
             };
-            comp_len++;
             data.companions.push(companion);
             res.status(201).send(companion);
         }
